@@ -1,9 +1,11 @@
+import hostURL from './reducers/hostURL'
 import browsePath from './reducers/browsePath'
 import { configureStore } from '@reduxjs/toolkit'
 
 const store = configureStore({
   reducer: {
-    browsePath
+    browsePath,
+    hostURL
   }
 })
 
