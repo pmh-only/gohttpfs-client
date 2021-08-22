@@ -11,10 +11,13 @@
   background-color: #f5f5f5;
 }
 
-
 .table > tbody > tr {
   border: 1px solid #ddd;
   cursor: pointer;
+}
+
+.activated {
+  border: 2px solid #00ADD8 !important;
 }
 
 .table > tbody > tr:hover {

@@ -8,6 +8,7 @@ import Alert from './Alert'
 
 import style from '../styles/FileList.module.css'
 import prettyBytes from 'pretty-bytes'
+import { selectSelectedFile, setSelectedFile } from '../redux/reducers/selectedFile'
 
 interface File {
   isDirectory: boolean
@@ -21,6 +22,7 @@ export default function FileList () {
   const dispatch = useDispatch()
   const hostURL = useSelector(selectHostURL)
   const browsePath = useSelector(selectBrowsePath)
+  const selectedFile = useSelector(selectSelectedFile)
 
   const { data, error } = useSWR(`${hostURL}/${browsePath}`, fetcher)
 
@@ -36,7 +38,13 @@ export default function FileList () {
   function handleClick (file: File) {
     return function () {
       if (file.isDirectory) return setPath(`${browsePath}/${file.fileName}`)
-      window.open(`${hostURL}/${browsePath}/${file.fileName}`, '_blank')
+
+      if (selectedFile === `${browsePath}/${file.fileName}`) {
+        window.open(`${hostURL}/${browsePath}/${file.fileName}`, '_blank')
+        return
+      }
+
+      dispatch(setSelectedFile(`${browsePath}/${file.fileName}`))
     }
   }
 
@@ -69,7 +77,7 @@ export default function FileList () {
                 <td>-</td>
               </tr>
               {(data.fileList || []).sort((a: File, b: File) => a.isDirectory === b.isDirectory ? 0 : a.isDirectory ? -1 : 1).map((file: File) => (
-                <tr key={file.fileName} onClick={handleClick(file)}>
+                <tr key={file.fileName} onClick={handleClick(file)} className={`${browsePath}/${file.fileName}` === selectedFile ? style.activated : ''}>
                   <td>{file.fileName + (file.isDirectory ? '/' : '')}</td>
                   <td>{file.isDirectory ? 'Directory' : 'File'}</td>
                   <td>{prettyBytes(file.fileSize)}</td>
