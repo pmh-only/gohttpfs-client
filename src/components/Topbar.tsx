@@ -18,6 +18,14 @@ export default function Topbar () {
           </li>
           <li id="path" className="flex flex-wrap gap-1">
             {browsePath.split('/').slice(1).map((path, i, arr) => {
+              if (arr.length < 2) {
+                return <a
+                key={i}
+                href="#/"
+                onClick={() => dispatch(setBrowsePath('/'))}
+                className="px-2 pb-1 bg-dark-gopher text-white">/{path}</a>
+              }
+
               if (path.length < 1) return <></>
 
               const processedPath = `${arr.slice(0, i).join('/')}/${path}`
