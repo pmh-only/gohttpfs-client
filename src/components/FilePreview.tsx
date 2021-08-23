@@ -20,6 +20,7 @@ export default function FilePreview () {
   const mimeType = mime.lookup(selectedFile)
   function Preview () {
     if (typeof mimeType !== 'string') return <></>
+
     if (mimeType.includes('image')) {
       return (
         <div>
@@ -29,9 +30,26 @@ export default function FilePreview () {
       )
     }
 
+    if (mimeType.includes('audio')) {
+      return (
+        <div>
+          <p>{mimeType}</p>
+          <audio controls src={`${hostURL}/${selectedFile}`} className="w-full" />
+        </div>
+      )
+    }
+
+    if (mimeType.includes('video')) {
+      return (
+        <div>
+          <p>{mimeType}</p>
+          <video controls src={`${hostURL}/${selectedFile}`} className="w-full" />
+        </div>
+      )
+    }
+
     if (mimeType === 'text/markdown') {
       const converter = new Converter()
-
       return (
         <div className="markdown-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(data!) }}/>
       )

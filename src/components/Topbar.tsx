@@ -14,15 +14,15 @@ export default function Topbar () {
       <Container>
         <ul className="px-2 flex gap-3 justify-between text-white">
           <li id="logo" className="font-bold">
-            <a href="#/" onClick={() => dispatch(setBrowsePath('/'))}>{process.env.REACT_APP_TITLE}</a>
+            <a href="#" onClick={() => dispatch(setBrowsePath(''))}>{process.env.REACT_APP_TITLE}</a>
           </li>
           <li id="path" className="flex flex-wrap gap-1">
             {browsePath.split('/').slice(1).map((path, i, arr) => {
               if (arr.length < 2) {
                 return <a
                 key={i}
-                href="#/"
-                onClick={() => dispatch(setBrowsePath('/'))}
+                href="#"
+                onClick={() => dispatch(setBrowsePath(''))}
                 className="px-2 pb-1 bg-dark-gopher text-white">/{path}</a>
               }
 
