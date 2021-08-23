@@ -1,4 +1,5 @@
 import React from 'react'
+import path from 'path'
 import { useDispatch, useSelector } from 'react-redux'
 import { selectBrowsePath, setBrowsePath } from '../redux/reducers/browsePath'
 import { selectHostURL, setHostURL } from '../redux/reducers/hostURL'
@@ -17,24 +18,14 @@ export default function Topbar () {
             <a href="#" onClick={() => dispatch(setBrowsePath(''))}>{process.env.REACT_APP_TITLE}</a>
           </li>
           <li id="path" className="flex flex-wrap gap-1">
-            {browsePath.split('/').slice(1).map((path, i, arr) => {
-              if (arr.length < 2) {
-                return <a
-                key={i}
-                href="#"
-                onClick={() => dispatch(setBrowsePath(''))}
-                className="px-2 pb-1 bg-dark-gopher text-white">/{path}</a>
-              }
-
-              if (path.length < 1) return <></>
-
-              const processedPath = `${arr.slice(0, i).join('/')}/${path}`
+            {browsePath.split('/').map((bpath, i, arr) => {
+              const processedPath = path.join(arr.slice(0, i).join('/'), bpath)
 
               return <a
                 key={i}
                 href={`#${processedPath}`}
                 onClick={() => dispatch(setBrowsePath(processedPath))}
-                className="px-2 pb-1 bg-dark-gopher text-white">/{path}</a>
+                className="px-2 pb-1 bg-dark-gopher text-white">/{bpath}</a>
             })}
           </li>
           <li>

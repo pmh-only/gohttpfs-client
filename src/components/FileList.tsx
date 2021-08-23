@@ -1,23 +1,22 @@
 import React from 'react'
 import useSWR from 'swr'
-import { useDispatch, useSelector } from 'react-redux'
-import { selectHostURL } from '../redux/reducers/hostURL'
-import { selectBrowsePath, setBrowsePath } from '../redux/reducers/browsePath'
-import Container from './Container'
-import Alert from './Alert'
+import path from 'path'
 
-import style from '../styles/FileList.module.css'
 import prettyBytes from 'pretty-bytes'
+import { useDispatch, useSelector } from 'react-redux'
+
+import Alert from './Alert'
+import Container from './Container'
+import { File } from '../interfaces/File'
+import { parseEndpoint } from '../utils/parsers'
+import { selectHostURL } from '../redux/reducers/hostURL'
 import { selectSelectedFile, setSelectedFile } from '../redux/reducers/selectedFile'
+import { openDirectoryPath, openParentPath, selectBrowsePath } from '../redux/reducers/browsePath'
+
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faDownload, faFolder } from '@fortawesome/free-solid-svg-icons'
 
-interface File {
-  isDirectory: boolean
-  fileSize: number
-  fileName: string
-  modifiedAt: number
-}
+import style from '../styles/FileList.module.css'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 export default function FileList () {
@@ -26,37 +25,40 @@ export default function FileList () {
   const browsePath = useSelector(selectBrowsePath)
   const selectedFile = useSelector(selectSelectedFile)
 
-  const { data, error } = useSWR(new URL(browsePath, hostURL).toString(), fetcher)
+  const { data, error } = useSWR(parseEndpoint(hostURL, browsePath), fetcher)
 
   if (error) return <Alert><div><h2 className="text-2xl">Error while trying to fetch file list</h2><p>{String(error)}</p></div></Alert>
   if (!data) return <Alert><div><h2 className="text-2xl">Loading...</h2><p>please wait for fetching file list</p></div></Alert>
   if (!data.success) return <Alert><div><h2 className="text-2xl">Error while trying to fetch file list</h2><p>{data.message}</p></div></Alert>
 
-  function setPath (path: string) {
-    window.location.hash = path
-    dispatch(setBrowsePath(path))
+  function handleParentClick () {
+    dispatch(openParentPath())
+    dispatch(setSelectedFile(path.join(browsePath.substr(0, browsePath.lastIndexOf('/')), 'readme.md')))
   }
 
   function handleClick (file: File) {
     return function () {
       if (file.isDirectory) {
-        setPath(`${browsePath}/${file.fileName}`)
-        dispatch(setSelectedFile(`${browsePath}/${file.fileName}/readme.md`))
+        dispatch(openDirectoryPath(file))
+        dispatch(setSelectedFile(path.join(browsePath, file.fileName, 'readme.md')))
         return
       }
 
-      if (selectedFile === `${browsePath}/${file.fileName}`) {
-        window.open(`${hostURL}/${browsePath}/${file.fileName}`, '_blank')
+      if (selectedFile === path.join(browsePath, file.fileName)) {
+        window.open(parseEndpoint(hostURL, path.join(browsePath, file.fileName)), '_blank')
         return
       }
 
-      dispatch(setSelectedFile(`${browsePath}/${file.fileName}`))
+      dispatch(setSelectedFile(path.join(browsePath, file.fileName)))
     }
   }
 
   function DownloadBtn ({ file }: { file: File }) {
+    const href = new URL(path.join(browsePath, file.fileName), hostURL)
+    if (file.isDirectory) href.searchParams.append('archive', 'true')
+
     return (
-      <a target="_blank" download={file.fileName} href={`${hostURL}/${browsePath}/${file.fileName}${file.isDirectory ? '?archive=true' : ''}`} rel="noreferrer">
+      <a target="_blank" download={file.fileName} href={href.toString()} rel="noreferrer">
         <FontAwesomeIcon icon={faDownload} color="#009BC2"/>
       </a>
     )
@@ -66,7 +68,7 @@ export default function FileList () {
     <section id="filelist">
       <Container>
         <div>
-          <h2 className="text-2xl font-bold bg-gray-200 inline-block p-2 my-3">{browsePath || '/'}</h2>
+          <h2 className="text-2xl font-bold bg-gray-200 inline-block p-2 my-3">/{browsePath}</h2>
           <table className={style.table}>
             <thead>
               <tr>
@@ -80,14 +82,14 @@ export default function FileList () {
               {!browsePath
                 ? <></>
                 : (
-                    <tr onClick={() => { setPath(browsePath.substr(0, browsePath.lastIndexOf('/'))); dispatch(setSelectedFile(`${browsePath.substr(0, browsePath.lastIndexOf('/'))}/readme.md`)) }}>
+                    <tr onClick={handleParentClick}>
                       <td><FontAwesomeIcon icon={faFolder} color="#009BC2"/> ..</td>
                       <td>-</td>
                       <td>-</td>
                     </tr>
                   )}
               {(data.fileList || []).sort((a: File, b: File) => a.isDirectory === b.isDirectory ? 0 : a.isDirectory ? -1 : 1).map((file: File) => (
-                <tr key={file.fileName} className={`${browsePath}/${file.fileName}` === selectedFile ? style.activated : ''}>
+                <tr key={file.fileName} className={path.join(browsePath, file.fileName) === selectedFile ? style.activated : ''}>
                   <td onClick={handleClick(file)}>{file.isDirectory ? <FontAwesomeIcon icon={faFolder} color="#00ADD8"/> : <></>} {file.fileName + (file.isDirectory ? '/' : '')}</td>
                   <td onClick={handleClick(file)}>{prettyBytes(file.fileSize)}</td>
                   <td onClick={handleClick(file)}>{(new Date(file.modifiedAt * 1000)).toDateString()}</td>

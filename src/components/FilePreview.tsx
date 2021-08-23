@@ -10,12 +10,15 @@ import Alert from './Alert'
 import Container from './Container'
 
 import 'github-markdown-css/github-markdown.css'
+import { parseEndpoint } from '../utils/parsers'
 
 const fetcher = (url: string) => fetch(url).then((r) => r.text())
 export default function FilePreview () {
   const hostURL = useSelector(selectHostURL)
   const selectedFile = useSelector(selectSelectedFile)
-  const { data, error } = useSWR(`${hostURL}/${selectedFile}`, fetcher)
+
+  const previewTarget = parseEndpoint(hostURL, selectedFile)
+  const { data, error } = useSWR(previewTarget, fetcher)
 
   const mimeType = mime.lookup(selectedFile)
   function Preview () {
@@ -25,7 +28,7 @@ export default function FilePreview () {
       return (
         <div>
           <p>{mimeType}</p>
-          <img src={`${hostURL}/${selectedFile}`} className="w-full" />
+          <img src={previewTarget} className="w-full" />
         </div>
       )
     }
@@ -34,7 +37,7 @@ export default function FilePreview () {
       return (
         <div>
           <p>{mimeType}</p>
-          <audio controls src={`${hostURL}/${selectedFile}`} className="w-full" />
+          <audio controls src={previewTarget} className="w-full" />
         </div>
       )
     }
@@ -43,7 +46,7 @@ export default function FilePreview () {
       return (
         <div>
           <p>{mimeType}</p>
-          <video controls src={`${hostURL}/${selectedFile}`} className="w-full" />
+          <video controls src={previewTarget} className="w-full" />
         </div>
       )
     }
@@ -72,7 +75,7 @@ export default function FilePreview () {
     <section id="filepreview">
       <Container>
         <div className="bg-gray-50 block p-5 mt-4">
-          <h2 className="text-2xl">{selectedFile}</h2>
+          <h2 className="text-2xl">/{selectedFile}</h2>
           <Preview />
         </div>
       </Container>
