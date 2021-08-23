@@ -57,31 +57,27 @@ export default function FileList () {
             <thead>
               <tr>
                 <th>File Name</th>
-                <th>File Type</th>
                 <th>File Size</th>
                 <th>Last Modified</th>
                 <th></th>
               </tr>
             </thead>
             <tbody>
-              <tr onClick={() => setPath(browsePath)}>
-                <td>.</td>
-                <td>Directory</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
-              <tr onClick={() => setPath(browsePath.substr(0, browsePath.lastIndexOf('/')))}>
-                <td>..</td>
-                <td>Directory</td>
-                <td>-</td>
-                <td>-</td>
-              </tr>
+              {!browsePath || browsePath === '/'
+                ? <></>
+                : (
+                    <tr onClick={() => setPath(browsePath.substr(0, browsePath.lastIndexOf('/')))}>
+                      <td>..</td>
+                      <td>-</td>
+                      <td>-</td>
+                    </tr>
+                  )}
               {(data.fileList || []).sort((a: File, b: File) => a.isDirectory === b.isDirectory ? 0 : a.isDirectory ? -1 : 1).map((file: File) => (
                 <tr key={file.fileName} onClick={handleClick(file)} className={`${browsePath}/${file.fileName}` === selectedFile ? style.activated : ''}>
                   <td>{file.fileName + (file.isDirectory ? '/' : '')}</td>
-                  <td>{file.isDirectory ? 'Directory' : 'File'}</td>
                   <td>{prettyBytes(file.fileSize)}</td>
                   <td>{(new Date(file.modifiedAt * 1000)).toDateString()}</td>
+                  <td className="cursor-default"></td>
                 </tr>
               ))}
             </tbody>

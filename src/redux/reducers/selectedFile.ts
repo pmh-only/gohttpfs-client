@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { RootState } from '../store'
 
-const initialState = { value: '/' }
+const initialState = { value: '/readme.md' }
 const selectedFileSlice = createSlice({
   name: 'selectedFile',
   initialState,
