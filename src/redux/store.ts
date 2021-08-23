@@ -1,11 +1,13 @@
 import hostURL from './reducers/hostURL'
 import browsePath from './reducers/browsePath'
+import selectedFile from './reducers/selectedFile'
 import { configureStore } from '@reduxjs/toolkit'
 
 const store = configureStore({
   reducer: {
     browsePath,
-    hostURL
+    hostURL,
+    selectedFile
   }
 })
 
