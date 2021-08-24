@@ -18,7 +18,7 @@ import { faDownload, faFolder } from '@fortawesome/free-solid-svg-icons'
 
 import style from '../styles/FileList.module.css'
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json())
+const fetcher = (url: string) => fetch(url, { headers: { 'X-Client': 'v1' } }).then((r) => r.json())
 export default function FileList () {
   const dispatch = useDispatch()
   const hostURL = useSelector(selectHostURL)
