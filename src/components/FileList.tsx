@@ -40,7 +40,6 @@ export default function FileList () {
     return function () {
       if (file.isDirectory) {
         dispatch(openDirectoryPath(file))
-        dispatch(setSelectedFile(path.join(browsePath, file.fileName, 'readme.md')))
         return
       }
 
@@ -67,38 +66,35 @@ export default function FileList () {
   return (
     <section id="filelist">
       <Container>
-        <div>
-          <h2 className="text-2xl font-bold bg-gray-200 inline-block p-2 my-3">/{browsePath}</h2>
-          <table className={style.table}>
-            <thead>
-              <tr>
-                <th>File Name</th>
-                <th>File Size</th>
-                <th>Last Modified</th>
-                <th></th>
+        <table className={style.table}>
+          <thead>
+            <tr>
+              <th>File Name</th>
+              <th>File Size</th>
+              <th className="hidden lg:table-cell">Last Modified</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {!browsePath
+              ? <></>
+              : (
+                  <tr onClick={handleParentClick}>
+                    <td><FontAwesomeIcon icon={faFolder} color="#009BC2"/> ..</td>
+                    <td>-</td>
+                    <td>-</td>
+                  </tr>
+                )}
+            {(data.fileList || []).sort((a: File, b: File) => a.isDirectory === b.isDirectory ? 0 : a.isDirectory ? -1 : 1).map((file: File) => (
+              <tr key={file.fileName} className={path.join(browsePath, file.fileName) === selectedFile ? style.activated : ''}>
+                <td onClick={handleClick(file)}>{file.isDirectory ? <FontAwesomeIcon icon={faFolder} color="#00ADD8"/> : <></>} {file.fileName + (file.isDirectory ? '/' : '')}</td>
+                <td onClick={handleClick(file)}>{prettyBytes(file.fileSize)}</td>
+                <td className="hidden lg:block" onClick={handleClick(file)}>{(new Date(file.modifiedAt * 1000)).toDateString()}</td>
+                <td className="text-center cursor-default"><DownloadBtn file={file}/></td>
               </tr>
-            </thead>
-            <tbody>
-              {!browsePath
-                ? <></>
-                : (
-                    <tr onClick={handleParentClick}>
-                      <td><FontAwesomeIcon icon={faFolder} color="#009BC2"/> ..</td>
-                      <td>-</td>
-                      <td>-</td>
-                    </tr>
-                  )}
-              {(data.fileList || []).sort((a: File, b: File) => a.isDirectory === b.isDirectory ? 0 : a.isDirectory ? -1 : 1).map((file: File) => (
-                <tr key={file.fileName} className={path.join(browsePath, file.fileName) === selectedFile ? style.activated : ''}>
-                  <td onClick={handleClick(file)}>{file.isDirectory ? <FontAwesomeIcon icon={faFolder} color="#00ADD8"/> : <></>} {file.fileName + (file.isDirectory ? '/' : '')}</td>
-                  <td onClick={handleClick(file)}>{prettyBytes(file.fileSize)}</td>
-                  <td onClick={handleClick(file)}>{(new Date(file.modifiedAt * 1000)).toDateString()}</td>
-                  <td className="text-center cursor-default"><DownloadBtn file={file}/></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </Container>
     </section>
   )

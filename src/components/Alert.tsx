@@ -3,7 +3,7 @@ import Container from './Container'
 
 export default function Alert ({ children }: { children: JSX.Element }) {
   return (
-    <section id="alert">
+    <section id="alert" className="w-full">
       <Container>
         <div className="bg-blue-100 border-2 border-blue-300 p-3 inline-block mt-5 rounded">
           {children}

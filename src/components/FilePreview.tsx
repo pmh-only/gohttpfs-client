@@ -25,36 +25,26 @@ export default function FilePreview () {
     if (typeof mimeType !== 'string') return <></>
 
     if (mimeType.includes('image')) {
-      return (
-        <div>
-          <p>{mimeType}</p>
-          <img src={previewTarget} className="w-full" />
-        </div>
-      )
+      return <img src={previewTarget} className="w-full rounded" />
     }
 
     if (mimeType.includes('audio')) {
-      return (
-        <div>
-          <p>{mimeType}</p>
-          <audio controls src={previewTarget} className="w-full" />
-        </div>
-      )
+      return <audio controls src={previewTarget} className="w-full rounded" />
     }
 
     if (mimeType.includes('video')) {
-      return (
-        <div>
-          <p>{mimeType}</p>
-          <video controls src={previewTarget} className="w-full" />
-        </div>
-      )
+      return <video controls src={previewTarget} className="w-full rounded" />
     }
 
     if (mimeType === 'text/markdown') {
       const converter = new Converter()
       return (
-        <div className="markdown-body" dangerouslySetInnerHTML={{ __html: converter.makeHtml(data!) }}/>
+        <div
+          className="markdown-body p-3"
+          dangerouslySetInnerHTML={{
+            __html: converter.makeHtml(data!)
+          }}
+        />
       )
     }
 
@@ -74,9 +64,11 @@ export default function FilePreview () {
   return (
     <section id="filepreview">
       <Container>
-        <div className="bg-gray-50 block p-5 mt-4">
-          <h2 className="text-2xl">/{selectedFile}</h2>
-          <Preview />
+        <div className="mt-3 lg:m-0">
+          <h2 className="text-2xl bg-gray-100 inline-block p-3 rounded">/{selectedFile}</h2>
+          <div className="bg-gray-50 block mt-4 resize-y">
+            <Preview />
+          </div>
         </div>
       </Container>
     </section>
